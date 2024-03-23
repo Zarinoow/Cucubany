@@ -1,0 +1,1 @@
+﻿Ce fichier devrait être réinstallé en cas de modification de la configuration de l'application.

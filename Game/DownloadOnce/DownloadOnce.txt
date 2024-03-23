@@ -1,0 +1,2 @@
+﻿Ce fichier devrait être téléchargé uniquement s'il n'est pas déjà présent sur votre système.
+Si des modifications sont apportées à ce fichier, les modifications seront conservées lors de la mise à jour du package.
