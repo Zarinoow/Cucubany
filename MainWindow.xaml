@@ -1,0 +1,105 @@
+﻿<Window x:Class="Cucubany.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Cucubany"
+        mc:Ignorable="d"
+        Title="Cucubany Launcher"
+        Icon="Resources/favico.ico"
+        Height="720" 
+        Width="1280"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        AllowsTransparency="True"
+        Background="Transparent"
+        WindowStartupLocation="CenterScreen"
+        MouseMove="Window_MouseMove"
+        >
+    
+    <WindowChrome.WindowChrome>
+        <WindowChrome GlassFrameThickness="0" CornerRadius="30" ResizeBorderThickness="0"/>
+    </WindowChrome.WindowChrome>
+    
+    <Grid MouseLeftButtonDown="DragWindow">
+        <Grid.Background>
+            <ImageBrush ImageSource="Resources/bg.png" Opacity="0.975"/>
+        </Grid.Background>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <!-- Votre navbar custom-->
+        <Grid Grid.Row="0" Margin="20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+                <Button Width="30" Height="30" Content="-" Click="minimizeButton_Click" Margin="10">
+                    <Button.Template>
+                        <ControlTemplate TargetType="{x:Type Button}">
+                            <Image Source="Resources/minimize.png" Stretch="Fill"/>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+                <Button Width="30" Height="30" Content="X" Click="closeButton_Click">
+                    <Button.Template>
+                        <ControlTemplate TargetType="{x:Type Button}">
+                            <Image Source="Resources/close.png" Stretch="Fill"/>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </StackPanel>
+            
+            <StackPanel Grid.Column="0" Orientation="Horizontal" PreviewMouseDown="connectAccount_Click">
+                <Border Width="80" Height="80" CornerRadius="30" BorderThickness="0" HorizontalAlignment="Left">
+                    <Border.Background>
+                        <ImageBrush x:Name="userPicture" ImageSource="https://mc-heads.net/avatar/MHF_steve"/>
+                    </Border.Background>
+                </Border>
+                <TextBlock x:Name="userName" Foreground="GhostWhite" VerticalAlignment="Center" Margin="20" FontFamily="Open Sans" FontSize="20" >
+                    Non connecté
+                </TextBlock>
+            </StackPanel>
+            
+        </Grid>
+
+        <!-- Reste de votre interface utilisateur -->
+        <Grid Grid.Row="1">
+            <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Stretch" Margin="0">
+                <Border x:Name="Logo" Width="750" Height="256">
+                    <Border.Background>
+                        <ImageBrush ImageSource="Resources/logo.png"/>
+                    </Border.Background>
+                </Border>
+            </StackPanel>
+            <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Bottom" Margin="30">
+                <TextBlock x:Name="StatusLabel" Visibility="Collapsed" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Open Sans" FontSize="40">Lancement en cours...</TextBlock>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button Name="Settings" Width="100" Height="100" Click="SettingsButton_Click">
+                        <Button.Template>
+                            <ControlTemplate TargetType="{x:Type Button}">
+                                <Image x:Name="PlayButtonImage" Source="Resources/settings.png" Stretch="Fill"/>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <Button Name="PlayButton" Width="384" Height="150" Click="PlayButton_Click" IsEnabled="False">
+                        <Button.Template>
+                            <ControlTemplate TargetType="{x:Type Button}">
+                                <Image x:Name="playImage" Source="Resources/playf.png" Stretch="Fill"/>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsEnabled" Value="True">
+                                        <Setter TargetName="playImage" Property="Source" Value="Resources/playt.png"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

@@ -1,0 +1,269 @@
+﻿<Window x:Class="Cucubany.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:Cucubany"
+        mc:Ignorable="d"
+        Title="Paramètres"
+        Icon="Resources/settings.ico"
+        Height="648"
+        Width="1152"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        AllowsTransparency="True"
+        Background="Transparent"
+        WindowStartupLocation="CenterScreen">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome GlassFrameThickness="0" CornerRadius="30" ResizeBorderThickness="0" />
+    </WindowChrome.WindowChrome>
+
+    <Grid MouseLeftButtonDown="DragWindow">
+        <Grid.Background>
+            <SolidColorBrush Color="#090909" Opacity="0.975"/>
+        </Grid.Background>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <!-- Votre navbar custom-->
+        <Grid Grid.Row="0" Margin="20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+                <Button Width="30" Height="30" Content="X" Click="closeButton_Click">
+                    <Button.Template>
+                        <ControlTemplate TargetType="{x:Type Button}">
+                            <Image Source="Resources/close.png"
+                                   Stretch="Fill" />
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </StackPanel>
+
+            <StackPanel Grid.Column="0" Orientation="Vertical">
+                <StackPanel Orientation="Horizontal">
+                    <Border Width="80" Height="80" HorizontalAlignment="Left">
+                        <Border.Background>
+                            <ImageBrush ImageSource="Resources/settings.png" />
+                        </Border.Background>
+                    </Border>
+                    <TextBlock Foreground="GhostWhite" VerticalAlignment="Center" Margin="20" FontFamily="Roboto"
+                               FontSize="30">
+                        PARAMÈTRES
+                    </TextBlock>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="20,50,0,0">
+                    <Border Width="80" Height="80" HorizontalAlignment="Left">
+                        <Border.Background>
+                            <ImageBrush ImageSource="Resources/ram.png" />
+                        </Border.Background>
+                    </Border>
+                    <StackPanel Orientation="Vertical" Margin="20">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Foreground="GhostWhite" VerticalAlignment="Center" FontFamily="Open Sans"
+                                       FontSize="20" Text="Mémoire Minimum" />
+                            <Slider x:Name="MinMemorySlider" Width="500" Minimum="0.5" Maximum="16" Value="0.5"
+                                    TickFrequency="0.5" IsSnapToTickEnabled="True" AutoToolTipPlacement="BottomRight"
+                                    AutoToolTipPrecision="1"
+                                    VerticalAlignment="Center" Margin="13,0,0,0">
+                                <Slider.Template>
+                                    <ControlTemplate>
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+                                            <Rectangle Grid.Row="0" Height="20" RadiusY="7" RadiusX="7">
+                                                <Rectangle.Fill>
+                                                    <LinearGradientBrush EndPoint="0,0" StartPoint="1,0">
+                                                        <GradientStop Color="Red" Offset="0" />
+                                                        <GradientStop Color="Yellow" Offset="0.8" />
+                                                        <GradientStop Color="Green" Offset="1" />
+                                                    </LinearGradientBrush>
+                                                </Rectangle.Fill>
+                                            </Rectangle>
+                                            <Track Grid.Row="0" x:Name="PART_Track">
+                                                <Track.Thumb>
+                                                    <Thumb Background="Transparent" Focusable="False">
+                                                        <Thumb.Template>
+                                                            <ControlTemplate>
+                                                                <Ellipse Width="15" Height="15" Fill="#80A9A9A9"
+                                                                         Stroke="Black" StrokeThickness="2"/>
+                                                            </ControlTemplate>
+                                                        </Thumb.Template>
+                                                    </Thumb>
+                                                </Track.Thumb>
+                                            </Track>
+                                        </Grid>
+                                    </ControlTemplate>
+                                </Slider.Template>
+                            </Slider>
+                            <TextBlock x:Name="MinMemoryValue" Foreground="GhostWhite" VerticalAlignment="Center"
+                                       FontFamily="Open Sans" FontSize="20"
+                                       Text="{Binding ElementName=MinMemorySlider, Path=Value, StringFormat={}{0:0.0} Gb}"
+                                       Margin="10,0,0,0" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Foreground="GhostWhite" VerticalAlignment="Center" FontFamily="Open Sans"
+                                       FontSize="20" Text="Mémoire Maximum" />
+                            <Slider x:Name="MaxMemorySlider" Width="500" Minimum="4" Maximum="16" Value="4"
+                                    TickFrequency="0.5" IsSnapToTickEnabled="True" AutoToolTipPlacement="BottomRight"
+                                    AutoToolTipPrecision="1" ValueChanged="MaxMemorySlider_ValueChanged"
+                                    VerticalAlignment="Center" Margin="10,0,0,0">
+                                <Slider.Template>
+                                    <ControlTemplate>
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+                                            <Rectangle Grid.Row="0" Height="20" RadiusY="7" RadiusX="7">
+                                                <Rectangle.Fill>
+                                                    <LinearGradientBrush EndPoint="0,0" StartPoint="1,0">
+                                                        <GradientStop Color="Red" Offset="0" />
+                                                        <GradientStop Color="Yellow" Offset="0.7" />
+                                                        <GradientStop Color="Green" Offset="1" />
+                                                    </LinearGradientBrush>
+                                                </Rectangle.Fill>
+                                            </Rectangle>
+                                            <Track Grid.Row="0" x:Name="PART_Track">
+                                                <Track.Thumb>
+                                                    <Thumb Background="Transparent" Focusable="False">
+                                                        <Thumb.Template>
+                                                            <ControlTemplate>
+                                                                <Ellipse Width="15" Height="15" Fill="#80A9A9A9"
+                                                                         Stroke="Black" StrokeThickness="2" />
+                                                            </ControlTemplate>
+                                                        </Thumb.Template>
+                                                    </Thumb>
+                                                </Track.Thumb>
+                                            </Track>
+                                        </Grid>
+                                    </ControlTemplate>
+                                </Slider.Template>
+                            </Slider>
+                            <TextBlock x:Name="MaxMemoryValue" Foreground="GhostWhite" VerticalAlignment="Center"
+                                       FontFamily="Open Sans" FontSize="20"
+                                       Text="{Binding ElementName=MaxMemorySlider, Path=Value, StringFormat={}{0:0.0} Gb}"
+                                       Margin="10,0,0,0" />
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="20,5,0,0">
+                    <Border Width="80" Height="80" HorizontalAlignment="Left">
+                        <Border.Background>
+                            <ImageBrush ImageSource="Resources/screensize.png"/>
+                        </Border.Background>
+                    </Border>
+                    <StackPanel Orientation="Vertical" Margin="20">
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Foreground="GhostWhite" VerticalAlignment="Center" FontFamily="Open Sans"
+                                               FontSize="20" Text="Taille horizontale de l'écran"/>
+                                    <Grid>
+                                        <TextBox x:Name="WidthTextBox" Width="80" PreviewTextInput="ScreenSizeTextBox_PreviewTextInput" TextAlignment="Center" VerticalContentAlignment="Center" Margin="10,0,0,0" LostFocus="WidthTextBox_LostFocus">
+                                            <TextBox.Template>
+                                                <ControlTemplate TargetType="TextBox">
+                                                    <Border x:Name="border" Background="LightGray" CornerRadius="7">
+                                                        <ScrollViewer x:Name="PART_ContentHost" />
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsEnabled" Value="False">
+                                                            <Setter TargetName="border" Property="Background" Value="Gray"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </TextBox.Template>
+                                        </TextBox>
+                                    </Grid>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                                    <TextBlock Foreground="GhostWhite" VerticalAlignment="Center" FontFamily="Open Sans"
+                                               FontSize="20" Text="Taille verticale de l'écran"/>
+                                    <Grid>
+                                        <TextBox x:Name="HeightTextBox" Width="80" PreviewTextInput="ScreenSizeTextBox_PreviewTextInput" TextAlignment="Center" VerticalContentAlignment="Center" Margin="36,0,0,0" LostFocus="HeightTextBox_LostFocus">
+                                            <TextBox.Template>
+                                                <ControlTemplate TargetType="TextBox">
+                                                    <Border x:Name="border" Background="LightGray" CornerRadius="7">
+                                                        <ScrollViewer x:Name="PART_ContentHost" />
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsEnabled" Value="False">
+                                                            <Setter TargetName="border" Property="Background" Value="Gray"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </TextBox.Template>
+                                        </TextBox>
+                                    </Grid>
+                                </StackPanel>
+                            </StackPanel>
+                            <CheckBox x:Name="FullScreenCheckBox" Checked="FullScreenCheckBox_Checked"
+                                      Unchecked="FullScreenCheckBox_Unchecked" VerticalAlignment="Center" Margin="10,0,0,0">
+                                <CheckBox.Template>
+                                    <ControlTemplate TargetType="CheckBox">
+                                        <Grid>
+                                            <Rectangle x:Name="box" Width="30" Height="30" RadiusX="7" RadiusY="7" Fill="Transparent" Stroke="White" StrokeThickness="3"/>
+                                            <Path x:Name="check" Stroke="White" StrokeThickness="3" Visibility="Collapsed"
+                                                  Data="M 5,10 L 10,15 L 20,5" Stretch="Fill" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        </Grid>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter TargetName="check" Property="Visibility" Value="Visible"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </CheckBox.Template>
+                            </CheckBox>
+                            <TextBlock Foreground="GhostWhite" VerticalAlignment="Center" FontFamily="Open Sans"
+                                       FontSize="20" Text="Plein écran" Margin="5,0,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="20,5,0,0">
+                    <Border Width="80" Height="80" HorizontalAlignment="Left">
+                        <Border.Background>
+                            <ImageBrush ImageSource="Resources/java.png" />
+                        </Border.Background>
+                    </Border>
+                    <StackPanel Orientation="Vertical" Margin="20">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Foreground="GhostWhite" VerticalAlignment="Center" FontFamily="Open Sans"
+                                       FontSize="20" Text="Chemin vers Java" />
+                            <Grid Width="500" Height="30" VerticalAlignment="Center" Margin="10,0,0,0" MouseLeftButtonDown="JavaPathGrid_MouseLeftButtonDown">
+                                <Rectangle x:Name="JavaPathTextBox" Fill="Gray" RadiusX="7" RadiusY="7"/>
+                                <TextBlock x:Name="JavaPathText" Foreground="Black" VerticalAlignment="Center" Text="C:\Program Files\Java\...\bin\javaw.exe" FontFamily="Open Sans" FontSize="13" Margin="5"/>
+                            </Grid>
+                            <CheckBox x:Name="JavaPathCheckBox" Checked="JavaPathCheckBox_Checked"
+                                      Unchecked="JavaPathCheckBox_Unchecked" VerticalAlignment="Center" Margin="10,0,0,0">
+                                <CheckBox.Template>
+                                    <ControlTemplate TargetType="CheckBox">
+                                        <Grid>
+                                            <Rectangle x:Name="box" Width="30" Height="30" RadiusX="7" RadiusY="7" Fill="Transparent" Stroke="White" StrokeThickness="3"/>
+                                            <Path x:Name="check" Stroke="White" StrokeThickness="3" Visibility="Collapsed"
+                                                  Data="M 5,10 L 10,15 L 20,5" Stretch="Fill" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        </Grid>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter TargetName="check" Property="Visibility" Value="Visible"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </CheckBox.Template>
+                            </CheckBox>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+                
+                
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>
