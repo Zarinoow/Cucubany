@@ -1,6 +1,9 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
+using System.Windows;
 using CmlLib.Core;
 using CmlLib.Core.Auth;
 using CmlLib.Core.Auth.Microsoft;
@@ -22,8 +25,6 @@ public class LauncherMain
     
     private readonly JELoginHandler _loginHandler;
     private MSession? _session;
-    
-    private readonly ModManager _modManager;
 
     public LauncherMain(MainWindow mainWindow)
     {
@@ -32,37 +33,44 @@ public class LauncherMain
         _path = new CucubanyPath();
         _gameOptions = new CucubanyOptions(_path);
         _loginHandler = new JELoginHandlerBuilder()
-            .WithAccountManager(System.IO.Path.Combine(_path.BasePath, "launcher_accounts.json"))
+            .WithAccountManager(Path.Combine(_path.BasePath, "launcher_accounts.json"))
             .Build();
         _launcher = new CMLauncher(_path);
-        _modManager = new ModManager(this);
     }
     
     public async void Launch()
     {
-        System.Net.ServicePointManager.DefaultConnectionLimit = 256;
+        ServicePointManager.DefaultConnectionLimit = 256;
         
         _mainWindow.EnablePlayButton(false);
         _mainWindow.ShowStatus();
         
         _launcher.FileChanged += (e) =>
         {
-            SetStatus($"Vérification de Minecraft ({e.FileKind})... {Math.Round(Math.Round(e.ProgressedFileCount / (double)e.TotalFileCount) * 100)}%");
+            SetStatus($"Vérification de Minecraft ({e.FileKind})... {Math.Round(e.ProgressedFileCount / (double) e.TotalFileCount * 100)}%");
         };
-        
-        
-        await _modManager.DownloadAndVerifyMods();
 
-        GitHubFileDownloader forceDownload = new GitHubFileDownloader("Zarinoow", "Cucubany", "Game/Download", _path.BasePath);
-        forceDownload.FileDownloadStatusChanged += (e) => SetStatus(e.GetStatus());
-        await forceDownload.DownloadFiles();
+        if (!MainWindow.KonamiCodeEnabled)
+        {
+            // Vérification des fichiers de jeu obligatoires
+            GameFileDownloader requiredDownload = new GameFileDownloader("required", _path.BasePath);
+            requiredDownload.FileDownloadStatusChanged += (e) => SetStatus(e.GetStatus());
+            await requiredDownload.DownloadFiles();
         
-        GitHubFileDownloader onceDownload = new GitHubFileDownloader("Zarinoow", "Cucubany", "Game/DownloadOnce", _path.BasePath);
-        onceDownload.FileDownloadStatusChanged += (e) => SetStatus(e.GetStatus());
-        await onceDownload.DownloadFiles(false);
+            // Vérification des fichiers de jeu facultatifs
+            GameFileDownloader onceDownload = new GameFileDownloader("optional", _path.BasePath);
+            onceDownload.FileDownloadStatusChanged += (e) => SetStatus(e.GetStatus());
+            await onceDownload.DownloadFiles(false);
         
+            // Nettoyage des fichiers inutiles
+            SetStatus("Nettoyage...");
+            GameFileCleaner cleaner = new GameFileCleaner("mods", _path.BasePath + "/mods");
+            await cleaner.CleanFiles();
+        }
+        
+        // Vérification et installation de Forge
         var versionLoader = new ForgeVersionLoader(new HttpClient());
-        var versions = await versionLoader.GetForgeVersions("1.16.5");
+        var versions = await versionLoader.GetForgeVersions("1.18.2");
         var recommendedVersion = versions.First(v => v.IsRecommendedVersion);
 
         var forge = new MForge(_launcher);
@@ -135,7 +143,7 @@ public class LauncherMain
         {
             _mainWindow.UpdateAccountInfo();
             if (e.GetType().FullName == "XboxAuthNet.OAuth.CodeFlow.AuthCodeException") return;
-            System.Windows.MessageBox.Show($"Une erreur est survenue lors de la connexion: {e.Message}", "Impossible de se connecter", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            MessageBox.Show($"Une erreur est survenue lors de la connexion: {e.Message}", "Impossible de se connecter", MessageBoxButton.OK, MessageBoxImage.Error);
             return;
         }
         

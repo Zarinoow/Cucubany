@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
@@ -16,6 +18,8 @@ namespace Cucubany
         public MainWindow()
         {
             InitializeComponent();
+            
+            KeyDown += MainWindow_KeyDown; // Konami code
 
             var launcherMain = new LauncherMain(this);
             launcherMain.ReconnectAccount();
@@ -108,5 +112,45 @@ namespace Cucubany
                 PlayButton.IsEnabled = false;
             }
         }
+        
+        /*
+         * Konami code
+         */
+        public static bool KonamiCodeEnabled = false;
+        
+        private readonly List<Key> _keysPressed = new List<Key>();
+        private readonly List<Key> _konamiCode = new List<Key>
+        {
+            Key.Up, Key.Up, Key.Down, Key.Down, Key.Left, Key.Right, Key.Left, Key.Right, Key.B, Key.A
+        };
+
+        private void MainWindow_KeyDown(object sender, KeyEventArgs e)
+        {
+            _keysPressed.Add(e.Key);
+
+            if (_keysPressed.Count > _konamiCode.Count)
+            {
+                _keysPressed.RemoveAt(0);
+            }
+
+            if (_keysPressed.SequenceEqual(_konamiCode))
+            {
+                KonamiCodeActivated();
+            }
+        }
+
+        private void KonamiCodeActivated()
+        {
+            KonamiCodeEnabled = !KonamiCodeEnabled;
+            if(KonamiCodeEnabled)
+            {
+                MessageBox.Show("Le mode développeur est désormais activé ! Le mode développeur est une fonctionnalité expérimentale qui peut causer des problèmes. Utilisez à vos risques et périls.", "Mode développeur activé", MessageBoxButton.OK, MessageBoxImage.Warning);
+            } else
+            {
+                MessageBox.Show("Vous venez de désactiver le mode développeur. Les fonctionnalités expérimentales ont été désactivées.", "Mode développeur désactivé", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            LauncherMain.GetInstance().GetGameOptions().Save();
+        }
+        
     }
 }

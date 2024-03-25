@@ -1,16 +1,14 @@
-﻿namespace Cucubany;
-
-using System;
+﻿using System;
 using System.IO;
 using System.Net.Http;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
+namespace Cucubany;
+
 public class FileDownloadStatus
 {
-    public string FileName { get; set; }
+    public string? FileName { get; set; }
     public DownloadAction Action { get; set; }
     public double Percentage { get; set; }
     
@@ -37,21 +35,17 @@ public enum DownloadAction
     Updating
 }
 
-public class GitHubFileDownloader
+public class GameFileDownloader
 {
     private readonly HttpClient _httpClient;
     
-    private readonly string _user;
-    private readonly string _repo;
     private readonly string _path;
     private readonly string _localPath;
 
-    public GitHubFileDownloader(string user, string repo, string path, string localPath)
+    public GameFileDownloader(string path, string localPath)
     {
         _httpClient = new HttpClient();
         
-        _user = user;
-        _repo = repo;
         _path = path;
         _localPath = localPath;
     }
@@ -60,23 +54,23 @@ public class GitHubFileDownloader
 
     public async Task DownloadFiles(bool verifyHash = true)
     {
-        var url = $"https://api.github.com/repos/{_user}/{_repo}/contents/{_path}";
-        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Cucubany-Updater"); // GitHub API needs a user-agent
+        var url = $"{Updater.UpdaterUrl}/update/game/{_path}";
+        
+        _httpClient.DefaultRequestHeaders.Add("User-Agent", "CucubanyGameUpdater");
 
         var response = await _httpClient.GetStringAsync(url);
         var files = JArray.Parse(response);
 
         foreach (var file in files)
         {
-            var fileName = (string)file["name"];
-            var downloadUrl = (string)file["download_url"];
-            var remoteFileSha = (string)file["sha"];
+            var fileName = (string)file["file"];
+            var remoteFileSha = (string)file["hash"];
             var fileType = (string)file["type"];
 
             var localFilePath = $"{_localPath}/{fileName}";
             if (fileType == "dir")
             {
-                var subDownloader = new GitHubFileDownloader(_user, _repo, $"{_path}/{fileName}", localFilePath);
+                var subDownloader = new GameFileDownloader($"{_path}/{fileName}", localFilePath);
                 subDownloader.FileDownloadStatusChanged += (status) => FileDownloadStatusChanged?.Invoke(status);
                 await subDownloader.DownloadFiles(verifyHash);
             }
@@ -84,13 +78,15 @@ public class GitHubFileDownloader
             {
                 var status = new FileDownloadStatus { FileName = fileName, Action = DownloadAction.Verifying };
                 FileDownloadStatusChanged?.Invoke(status);
+                
+                var downloadUrl = $"{Updater.UpdaterUrl}/download/game/{_path}/{fileName}";
 
                 if (!File.Exists(localFilePath))
                 {
                     status.Action = DownloadAction.Downloading;
                     await DownloadFile(downloadUrl, localFilePath, status);
                 }
-                else if (verifyHash && ComputeSha1(localFilePath) != remoteFileSha)
+                else if (verifyHash && Updater.ComputeHash(localFilePath) != remoteFileSha)
                 {
                     status.Action = DownloadAction.Updating;
                     await DownloadFile(downloadUrl, localFilePath, status);
@@ -139,27 +135,6 @@ public class GitHubFileDownloader
                 }
             }
             while (isMoreToRead);
-        }
-    }
-
-    public static string ComputeSha1(string filePath)
-    {
-        using (var stream = File.OpenRead(filePath))
-        {
-            var contentBytes = File.ReadAllBytes(filePath);
-            var size = contentBytes.Length;
-            var header = $"blob {size}\0";
-            var headerBytes = Encoding.UTF8.GetBytes(header);
-            var blob = new byte[headerBytes.Length + contentBytes.Length];
-
-            Buffer.BlockCopy(headerBytes, 0, blob, 0, headerBytes.Length);
-            Buffer.BlockCopy(contentBytes, 0, blob, headerBytes.Length, contentBytes.Length);
-
-            using (var sha = new SHA1Managed())
-            {
-                byte[] checksum = sha.ComputeHash(blob);
-                return BitConverter.ToString(checksum).Replace("-", String.Empty).ToLower();
-            }
         }
     }
 }

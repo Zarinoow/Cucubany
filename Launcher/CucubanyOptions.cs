@@ -1,10 +1,7 @@
 ﻿using System;
 using System.IO;
 using CmlLib.Core;
-using CmlLib.Core.Auth;
-using CmlLib.Core.Files;
 using Newtonsoft.Json;
-using XboxAuthNet.Game.Accounts;
 
 namespace Cucubany.Launcher;
 
@@ -24,7 +21,7 @@ public class CucubanyOptions : MLaunchOption
      */
     private bool useCustomJavaPath = false;
     public string CustomJavaPath { get; set; }
-    public string? LastConnectedAccount { get; set; }
+    public string LastConnectedAccount { get; set; }
     
     
     public CucubanyOptions(CucubanyPath path)
@@ -92,6 +89,12 @@ public class CucubanyOptions : MLaunchOption
             // Last session
             writer.WritePropertyName("lastConnectedAccount");
             writer.WriteValue(LastConnectedAccount);
+            
+            if(MainWindow.KonamiCodeEnabled)
+            {
+                writer.WritePropertyName("KonamiCodeEnabled");
+                writer.WriteValue(MainWindow.KonamiCodeEnabled);
+            }
             
             // End writing
             writer.WriteEndObject();
@@ -167,14 +170,19 @@ public class CucubanyOptions : MLaunchOption
                                                 useCustomJavaPath = bool.Parse(reader.Value.ToString());
                                                 break;
                                             case "JavaPath":
-                                                CustomJavaPath = reader.Value.ToString();
+                                                if(reader.Value == null) CustomJavaPath = string.Empty;
+                                                else CustomJavaPath = reader.Value.ToString();
                                                 break;
                                         }
                                         reader.Read();
                                     }
                                     break;
                                 case "lastConnectedAccount":
-                                    LastConnectedAccount = reader.Value.ToString();
+                                    if(reader.Value == null) LastConnectedAccount = string.Empty;
+                                    else LastConnectedAccount = reader.Value.ToString();
+                                    break;
+                                case "KonamiCodeEnabled":
+                                    MainWindow.KonamiCodeEnabled = true;
                                     break;
                             }
                         }

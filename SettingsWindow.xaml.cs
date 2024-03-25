@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -62,7 +63,7 @@ public partial class SettingsWindow : Window
         JavaPathCheckBox.IsChecked = gameOptions.IsCustomJavaPathEnabled() && !string.IsNullOrEmpty(gameOptions.CustomJavaPath);
     }
     
-    private void SettingsWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+    private void SettingsWindow_Closing(object sender, CancelEventArgs e)
     {
         gameOptions.MinimumRamMb = (int) (MinMemorySlider.Value * 1024);
         gameOptions.MaximumRamMb = (int) (MaxMemorySlider.Value * 1024);

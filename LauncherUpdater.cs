@@ -1,44 +1,36 @@
-﻿using System;
-
-namespace Cucubany;
-
-using System.IO;
+﻿using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+
+namespace Cucubany;
 
 public class LauncherUpdater
 {
     private readonly HttpClient _httpClient;
     
-    private readonly string _user;
-    private readonly string _repo;
-    private readonly string _path;
     private readonly string _localPath;
 
-    public LauncherUpdater(string user, string repo, string path, string localPath)
+    public LauncherUpdater(string localPath)
     {
         _httpClient = new HttpClient();
         
-        _user = user;
-        _repo = repo;
-        _path = path;
         _localPath = localPath;
     }
 
     public async Task DownloadUpdate(string path = "")
     {
-        var url = $"https://api.github.com/repos/{_user}/{_repo}/contents/{_path}/{path}";
-        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Cucubany-Updater"); // GitHub API needs a user-agent
-    
+        var url = $"{Updater.UpdaterUrl}/update/application/{path}";
+        
+        _httpClient.DefaultRequestHeaders.Add("User-Agent", "CucubanyApplicationUpdater");
+        
         var response = await _httpClient.GetStringAsync(url);
         var files = JArray.Parse(response);
     
         foreach (var file in files)
         {
-            var fileName = (string)file["name"];
-            var downloadUrl = (string)file["download_url"];
-            var remoteFileSha = (string)file["sha"];
+            var fileName = (string)file["file"];
+            var remoteFileSha = (string)file["hash"];
             var fileType = (string)file["type"];
     
             var localFilePath = Path.Combine(_localPath, path, fileName);
@@ -50,9 +42,10 @@ public class LauncherUpdater
             }
             else
             {
+                var downloadUrl = $"{Updater.UpdaterUrl}/download/application/{path}/{fileName}";
                 if (File.Exists(localFilePath))
                 {
-                    var localFileSha = GitHubFileDownloader.ComputeSha1(localFilePath);
+                    var localFileSha = Updater.ComputeHash(localFilePath);
                     if (localFileSha != remoteFileSha)
                     {
                         await DownloadFile(downloadUrl, updateFilePath);

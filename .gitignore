@@ -1,3 +1,5 @@
 ﻿/Resources/
 /bin/Release/net7.0-windows/win-x64/
+/bin/Release/net7.0-windows/Cucubany.deps.json
+/bin/Release/net7.0-windows/Cucubany.runtimeconfig.json
 /bin/Release/net7.0-windows/runtimes/
