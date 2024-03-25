@@ -38,7 +38,7 @@ public partial class Updater
         await updater.DownloadUpdate();
         
         // Verify if a Update folder was created
-        /*if (Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Update")))
+        if (Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Update")))
         {
             // Close the current application
            Close();
@@ -47,8 +47,6 @@ public partial class Updater
             System.Diagnostics.Process.Start(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Updater.exe"));
             
         } else UpdateComplete();
-        */
-        UpdateComplete(); // REMOVE FOR PRODUCTION
     }
     
     public static string ComputeHash(string filePath)
