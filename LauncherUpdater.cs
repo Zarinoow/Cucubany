@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
@@ -10,6 +11,9 @@ public class LauncherUpdater
     private readonly HttpClient _httpClient;
     
     private readonly string _localPath;
+    
+    public bool IsUpdateCancelled { get; private set; } = false;
+    private bool WritePermissionChecked { get; set; } = false;
 
     public LauncherUpdater(string localPath)
     {
@@ -29,6 +33,8 @@ public class LauncherUpdater
     
         foreach (var file in files)
         {
+            if(IsUpdateCancelled) return;
+            
             var fileName = (string)file["file"];
             var remoteFileSha = (string)file["hash"];
             var fileType = (string)file["type"];
@@ -48,11 +54,13 @@ public class LauncherUpdater
                     var localFileSha = Updater.ComputeHash(localFilePath);
                     if (localFileSha != remoteFileSha)
                     {
+                        Console.WriteLine($"Updating file: {fileName}");
                         await DownloadFile(downloadUrl, updateFilePath);
                     }
                 }
                 else
                 {
+                    Console.WriteLine($"Downloading new file: {fileName}");
                     await DownloadFile(downloadUrl, updateFilePath);
                 }
             }
@@ -62,6 +70,18 @@ public class LauncherUpdater
     private async Task DownloadFile(string downloadUrl, string filePath)
     {
         var directoryName = Path.GetDirectoryName(filePath);
+        
+        if(!WritePermissionChecked)
+        {
+            if(!HasWritePermission(directoryName))
+            {
+                Console.WriteLine($"No write permission for {filePath}");
+                IsUpdateCancelled = true;
+                return;
+            }
+            WritePermissionChecked = true;
+        }
+        
         if (directoryName != null)
         {
             Directory.CreateDirectory(directoryName);
@@ -72,6 +92,31 @@ public class LauncherUpdater
         using (Stream streamToWriteTo = File.Open(filePath, FileMode.Create))
         {
             await streamToReadFrom.CopyToAsync(streamToWriteTo);
+        }
+    }
+    
+    private bool HasWritePermission(string folderPath)
+    {
+        try
+        {
+            // Check if the directory exists. If not, create it.
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+
+            // Use a temporary file name. You can change this to something more specific if needed.
+            var tmpFileName = Path.Combine(folderPath, Path.GetRandomFileName());
+            using (File.Create(tmpFileName, 1, FileOptions.DeleteOnClose))
+            {
+                // If we can create a file, that means we have write access.
+                return true;
+            }
+        }
+        catch
+        {
+            // If an exception occurs, that means we do not have write access.
+            return false;
         }
     }
 }

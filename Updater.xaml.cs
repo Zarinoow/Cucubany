@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Security.Cryptography;
@@ -36,6 +37,23 @@ public partial class Updater
         
         LauncherUpdater updater = new LauncherUpdater(AppDomain.CurrentDomain.BaseDirectory);
         await updater.DownloadUpdate();
+
+        if (updater.IsUpdateCancelled)
+        {
+            // Restart with admin rights
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = AppDomain.CurrentDomain.BaseDirectory + "Cucubany.exe",
+                Verb = "runas",
+                UseShellExecute = true
+            };
+            Process.Start(startInfo);
+
+            // Close the current application.
+            Close();
+            
+            return;
+        }
         
         // Verify if a Update folder was created
         if (Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Update")))
