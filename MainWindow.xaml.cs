@@ -96,9 +96,9 @@ namespace Cucubany
             });
         }
         
-        public void ShowStatus()
+        public void ShowStatus(bool show = true)
         {
-            StatusLabel.Visibility = Visibility.Visible;
+            StatusLabel.Visibility = show ? Visibility.Visible : Visibility.Hidden;
         }
         
         public void EnablePlayButton(bool enabled)

@@ -27,6 +27,10 @@ public class LauncherMain
     
     private readonly JELoginHandler _loginHandler;
     private MSession? _session;
+    
+    // Forge settings
+    private const string MinecraftVersion = "1.18.2";
+    private const string ForgeVersion = "40.2.0";
 
     public LauncherMain(MainWindow mainWindow)
     {
@@ -69,16 +73,34 @@ public class LauncherMain
             GameFileCleaner cleaner = new GameFileCleaner("mods", _path.BasePath + "/mods");
             await cleaner.CleanFiles();
         }
+
+        string versionName = MinecraftVersion + "-forge-" + ForgeVersion;
         
         // Vérification et installation de Forge
-        var versionLoader = new ForgeVersionLoader(new HttpClient());
-        var versions = await versionLoader.GetForgeVersions("1.18.2");
-        var recommendedVersion = versions.First(v => v.IsRecommendedVersion);
+        SetStatus("Vérification de Forge...");
 
         var forge = new MForge(_launcher);
         forge.FileChanged += (e) => SetStatus($"Vérification de Forge ({e.FileKind})... {Math.Round((double) e.ProgressedFileCount / e.TotalFileCount * 100)}%");
-        // ~~~ event handlers ~~~
-        var versionName = await forge.Install(recommendedVersion.MinecraftVersionName, recommendedVersion.ForgeVersionName);
+        
+        try
+        {
+            await forge.Install(MinecraftVersion, ForgeVersion);
+        }
+        catch (Exception e)
+        {
+            // Vérifier si le fichier de jeu est déjà installé
+            if (!Directory.Exists(Path.Combine(_path.BasePath, "gamedir", "versions", versionName)))
+            {
+                MessageBox.Show("Impossible de télécharger Forge. Veuillez réessayer plus tard.", "Erreur de téléchargement", MessageBoxButton.OK, MessageBoxImage.Error);
+                
+                _mainWindow.EnablePlayButton(true);
+                _mainWindow.ShowStatus(false);
+                
+                return;
+            }
+        }
+
+
         // ~~~ launch codes ~~~
         var process = await _launcher.CreateProcessAsync(versionName, _gameOptions);
         process.Start();
