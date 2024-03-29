@@ -3,10 +3,12 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Windows;
 using CmlLib.Core;
 using CmlLib.Core.Auth;
 using CmlLib.Core.Auth.Microsoft;
+using CmlLib.Core.Auth.Microsoft.Sessions;
 using CmlLib.Core.Installer.Forge;
 using CmlLib.Core.Installer.Forge.Versions;
 using Cucubany.Launcher;
@@ -109,18 +111,27 @@ public class LauncherMain
         return _gameOptions;
     }
     
-    public void ReconnectAccount()
+    public async void ReconnectAccount()
     {
         var accounts = _loginHandler.AccountManager.GetAccounts();
         if (accounts.Count == 0) return;
         if (string.IsNullOrEmpty(_gameOptions.LastConnectedAccount)) return;
-        
-        var account = accounts.GetJEAccountByUsername(_gameOptions.LastConnectedAccount);
-        
+
+        JEGameAccount account;
         
         try
         {
-            _session = account.ToLauncherSession();
+            account = accounts.GetJEAccountByUsername(_gameOptions.LastConnectedAccount);
+        }
+        catch (Exception e)
+        {
+            await Task.Run(() => MessageBox.Show("Votre compte n'a pas pu être reconnecté automatiquement. Veuillez essayer de vous reconnecter manuellement.", "Impossible de se reconnecter", MessageBoxButton.OK, MessageBoxImage.Error));
+            return;
+        }
+        
+        try
+        {
+            _session = await _loginHandler.Authenticate(account);
         }
         catch (Exception)
         {

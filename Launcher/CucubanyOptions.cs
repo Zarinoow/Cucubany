@@ -30,8 +30,9 @@ public class CucubanyOptions : MLaunchOption
         
         Load();
         
+        VersionType = "Cucubany";
         GameLauncherName = "Cucubany";
-        GameLauncherVersion = "1.0.0";
+        GameLauncherVersion = "2";
     }
     
     /*
