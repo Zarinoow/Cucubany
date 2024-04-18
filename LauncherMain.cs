@@ -30,7 +30,7 @@ public class LauncherMain
     
     // Forge settings
     private const string MinecraftVersion = "1.18.2";
-    private const string ForgeVersion = "40.2.0";
+    private const string ForgeVersion = "40.2.14";
 
     public LauncherMain(MainWindow mainWindow)
     {
