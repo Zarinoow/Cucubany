@@ -33,6 +33,15 @@ public class CucubanyOptions : MLaunchOption
         VersionType = "Cucubany";
         GameLauncherName = "Cucubany";
         GameLauncherVersion = "2";
+        JVMArguments = new[] { 
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+UseG1GC",
+            "-XX:G1NewSizePercent=20",
+            "-XX:G1ReservePercent=20",
+            "-XX:MaxGCPauseMillis=50",
+            "-XX:G1HeapRegionSize=16M",
+            "-Djava.net.preferIPv4Stack=true"
+        };
     }
     
     /*
