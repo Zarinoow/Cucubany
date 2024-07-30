@@ -13,6 +13,7 @@ public class LauncherUpdater
     private readonly string _localPath;
     
     public bool IsUpdateCancelled { get; private set; } = false;
+    public byte ExitCode { get; private set; } = 0; // 0 = Success, 1 = No write permission, 2 = Server error, 3 = Bad API response
     private bool WritePermissionChecked { get; set; } = false;
 
     public LauncherUpdater(string localPath)
@@ -28,8 +29,31 @@ public class LauncherUpdater
         
         _httpClient.DefaultRequestHeaders.Add("User-Agent", "CucubanyApplicationUpdater");
         
-        var response = await _httpClient.GetStringAsync(url);
-        var files = JArray.Parse(response);
+        string response;
+        try
+        {
+            response = await _httpClient.GetStringAsync(url);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Cannot connect to the server: {ex.Message}");
+            IsUpdateCancelled = true;
+            ExitCode = 2;
+            return;
+        }
+        
+        JArray files;
+        try
+        {
+            files = JArray.Parse(response);
+        }
+        catch
+        {
+            Console.WriteLine("Cannot parse API response");
+            IsUpdateCancelled = true;
+            ExitCode = 3;
+            return;
+        }
     
         foreach (var file in files)
         {
@@ -77,6 +101,7 @@ public class LauncherUpdater
             {
                 Console.WriteLine($"No write permission for {filePath}");
                 IsUpdateCancelled = true;
+                ExitCode = 1;
                 return;
             }
             WritePermissionChecked = true;

@@ -3,6 +3,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Security.Cryptography;
+using System.Windows;
+using System.Windows.Media;
 
 namespace Cucubany;
 
@@ -40,19 +42,43 @@ public partial class Updater
 
         if (updater.IsUpdateCancelled)
         {
-            // Restart with admin rights
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = AppDomain.CurrentDomain.BaseDirectory + "Cucubany.exe",
-                Verb = "runas",
-                UseShellExecute = true
-            };
-            Process.Start(startInfo);
+            Spinner.Visibility = Visibility.Hidden;
+            UpdateText.Text = "Erreur lors de la mise à jour !";
+            UpdateText.Foreground = Brushes.Red;
 
-            // Close the current application.
-            Close();
+            MessageBoxResult result = MessageBoxResult.None;
             
+            switch (updater.ExitCode)
+            {
+                // Restart with admin rights
+                case 1:
+                    var startInfo = new ProcessStartInfo
+                    {
+                        FileName = AppDomain.CurrentDomain.BaseDirectory + "Cucubany.exe",
+                        Verb = "runas",
+                        UseShellExecute = true
+                    };
+                    Process.Start(startInfo);
+                    break;
+                // Server error
+                case 2:
+                    result = MessageBox.Show("Une erreur est survenue lors du contact avec le serveur de mise à jour. L'utilisation du programme sera limitée.\n\nSouhaitez-vous continuer ?", "Défaillance générale du serveur de mise à jour", MessageBoxButton.YesNo, MessageBoxImage.Error);
+                    break;
+                // Bad API response
+                case 3:
+                    result = MessageBox.Show("Une erreur est survenue lors de l'interprétation des informations de mise à jour. L'utilisation du programme sera limitée.\n\nSouhaitez-vous continuer ?", "Communication impossible avec le serveur de mise à jour", MessageBoxButton.YesNo, MessageBoxImage.Error);
+                    break;
+            }
+            
+            if(result == MessageBoxResult.None || result == MessageBoxResult.No) Close();
+            if (result == MessageBoxResult.Yes)
+            {
+                MainWindow.OfflineMode = true;
+                UpdateComplete();
+            }
             return;
+
+            
         }
         
         // Verify if a Update folder was created

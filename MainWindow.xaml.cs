@@ -14,6 +14,7 @@ namespace Cucubany
     public partial class MainWindow
     {
         private const String ApiAvatarUrl = "https://mc-heads.net/avatar/";
+        public static bool OfflineMode = false;
 
         public MainWindow()
         {
@@ -105,12 +106,13 @@ namespace Cucubany
         {
             if (enabled)
             {
-                PlayButton.IsEnabled = true;
+                if (!OfflineMode || OfflineMode && KonamiCodeEnabled)
+                {
+                    PlayButton.IsEnabled = true;
+                    return;
+                }
             }
-            else
-            {
-                PlayButton.IsEnabled = false;
-            }
+            PlayButton.IsEnabled = false;
         }
         
         /*
@@ -142,6 +144,7 @@ namespace Cucubany
         private void KonamiCodeActivated()
         {
             KonamiCodeEnabled = !KonamiCodeEnabled;
+            UpdateAccountInfo();
             if(KonamiCodeEnabled)
             {
                 MessageBox.Show("Le mode développeur est désormais activé ! Le mode développeur est une fonctionnalité expérimentale qui peut causer des problèmes. Utilisez à vos risques et périls.", "Mode développeur activé", MessageBoxButton.OK, MessageBoxImage.Warning);

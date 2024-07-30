@@ -41,9 +41,9 @@
         <Grid Grid.Row="1">
             <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Bottom" Margin="20">
                 <Grid>
-                    <Image Width="100" Height="100" gif:ImageBehavior.AnimatedSource="Resources/spinner.gif"/>
+                    <Image x:Name="Spinner" Width="100" Height="100" gif:ImageBehavior.AnimatedSource="Resources/spinner.gif"/>
                 </Grid>
-                <TextBlock Foreground="#BFE381" Text="Mise à jour en cours de cucubany..." HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20" FontFamily="Open Sans" FontSize="20">
+                <TextBlock x:Name="UpdateText" Foreground="#BFE381" Text="Mise à jour en cours de cucubany..." HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20" FontFamily="Open Sans" FontSize="20">
                     <TextBlock.Triggers>
                         <EventTrigger RoutedEvent="TextBlock.Loaded">
                             <BeginStoryboard>
